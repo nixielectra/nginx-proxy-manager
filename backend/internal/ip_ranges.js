@@ -14,12 +14,18 @@ const regIpV6 = /^(([\da-fA-F]+)?:)+\/\d+/;
 
 const internalIpRanges = {
 
-	interval_timeout:    1000 * 60 * 60 * 6, // 6 hours
+	interval_timeout:    1000 * 60 * 60 * 24, // 24 hours
 	interval:            null,
 	interval_processing: false,
 	iteration_count:     0,
 
 	initTimer: () => {
+		let timerExecutedEvery = 24;
+		if (typeof process.env.IPRANGE_RENEWAL_INTERVAL_IN_HOURS !== 'undefined') {
+			internalIpRanges.interval_timeout = process.env.IPRANGE_RENEWAL_INTERVAL_IN_HOURS * 1000 * 60 * 60;
+			timerExecutedEvery                = process.env.IPRANGE_RENEWAL_INTERVAL_IN_HOURS;
+		}
+		logger.info('Timer for ipranges renewal will be executed every ' + timerExecutedEvery + ' hour(s)');
 		logger.info('IP Ranges Renewal Timer initialized');
 		internalIpRanges.interval = setInterval(internalIpRanges.fetch, internalIpRanges.interval_timeout);
 	},
