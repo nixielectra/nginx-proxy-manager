@@ -1,0 +1,21 @@
+FROM jc21/nginx-proxy-manager:latest
+
+EXPOSE 80 81 443
+
+RUN  rm -rf /app/internal/certificate.js /app/internal/ip_ranges.js /app/templates/proxy_host.conf
+COPY backend/internal/certificate.js /app/internal/certificate.js
+COPY backend/internal/ip_ranges.js /app/internal/ip_ranges.js
+COPY backend/templates/proxy_host.conf /app/templates/proxy_host.conf
+
+WORKDIR /app
+
+VOLUME [ "/data", "/etc/letsencrypt" ]
+ENTRYPOINT [ "/init" ]
+
+LABEL org.label-schema.schema-version="1.0" \
+	org.label-schema.license="MIT" \
+	org.label-schema.name="nginx-proxy-manager" \
+	org.label-schema.description="Docker container for managing Nginx proxy hosts with a simple, powerful interface " \
+	org.label-schema.url="https://github.com/nixielectra/nginx-proxy-manager" \
+	org.label-schema.vcs-url="https://github.com/nixielectra/nginx-proxy-manager.git" \
+	org.label-schema.cmd="docker run --rm -ti nixielectra/nginx-proxy-manager:latest"
