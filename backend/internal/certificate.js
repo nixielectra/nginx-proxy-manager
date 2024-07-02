@@ -29,16 +29,22 @@ function omissions() {
 const internalCertificate = {
 
 	allowedSslFiles:         ['certificate', 'certificate_key', 'intermediate_certificate'],
-	intervalTimeout:         1000 * 60 * 60, // 1 hour
+	intervalTimeout:         86400 * 1000, // 1 day
 	interval:                null,
 	intervalProcessing:      false,
 	renewBeforeExpirationBy: [30, 'days'],
 
 	initTimer: () => {
-		logger.info('Let\'s Encrypt Renewal Timer initialized');
+		let timerExecutedEvery = 1;
+		if (typeof process.env.CERTIFICATE_RENEWAL_INTERVAL_IN_DAYS !== 'undefined') {
+			internalCertificate.intervalTimeout = process.env.CERTIFICATE_RENEWAL_INTERVAL_IN_DAYS * 86400 * 1000;
+			timerExecutedEvery                  = process.env.CERTIFICATE_RENEWAL_INTERVAL_IN_DAYS;
+		}
+		logger.info('Timer for certificates renewal will be executed every ' + timerExecutedEvery + ' day(s)');
 		internalCertificate.interval = setInterval(internalCertificate.processExpiringHosts, internalCertificate.intervalTimeout);
 		// And do this now as well
 		internalCertificate.processExpiringHosts();
+		logger.info('Let\'s Encrypt Renewal Timer initialized');
 	},
 
 	/**
